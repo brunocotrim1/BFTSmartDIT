@@ -1,4 +1,4 @@
-package intol.dti.objects;
+package intol.dti.objects.coin;
 
 public class CoinDTO implements java.io.Serializable {
     private final int id;

@@ -1,23 +1,21 @@
 package intol.dti.imp.client;
 
 import bftsmart.tom.ServiceProxy;
-import intol.dti.objects.BFTCoinMessage;
-import intol.dti.objects.BFTCoinRequestType;
-import intol.dti.objects.CoinDTO;
+import intol.dti.objects.coin.BFTCoinMessage;
+import intol.dti.objects.coin.BFTCoinRequestType;
+import intol.dti.objects.coin.CoinDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static intol.dti.objects.BFTCoinRequestType.MINT;
-import static intol.dti.objects.BFTCoinRequestType.MY_COINS;
-
-import java.util.Random;
+import static intol.dti.objects.coin.BFTCoinRequestType.MINT;
+import static intol.dti.objects.coin.BFTCoinRequestType.MY_COINS;
 
 public class BFTCoin {
     private final Logger logger = LoggerFactory.getLogger("bftsmart");
     private final ServiceProxy serviceProxy;
 
-    public BFTCoin(int id) {
-        serviceProxy = new ServiceProxy(id);
+    public BFTCoin(ServiceProxy serviceProxy) {
+        this.serviceProxy = serviceProxy;
     }
 
     public CoinDTO[] my_coins() {
@@ -42,6 +40,11 @@ public class BFTCoin {
             request.setValue(value);
             //invokes BFT-SMaRt
             rep = serviceProxy.invokeOrdered(BFTCoinMessage.toBytes(request));
+            BFTCoinMessage response = BFTCoinMessage.fromBytes(rep);
+            if (response.getValue() == -1) {
+                logger.error("You dont have permission to mint coins");
+                return -1;
+            }
             return BFTCoinMessage.fromBytes(rep).getCoins()[0];
         } catch (Exception e) {
             logger.error("Failed to send MINT request");

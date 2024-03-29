@@ -1,6 +1,7 @@
-package intol.dti.objects;
+package intol.dti.objects.coin;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class BFTCoinMessage implements Serializable {
     private BFTCoinRequestType type;
@@ -65,4 +66,14 @@ public class BFTCoinMessage implements Serializable {
         this.coinDTOS = coinDTOS;
     }
 
+    @Override
+    public String toString() {
+        return "BFTCoinMessage{" +
+                "type=" + type +
+                ", value=" + value +
+                ", coins=" + Arrays.toString(coins) +
+                ", coinDTOS=" + Arrays.toString(coinDTOS) +
+                ", receiver=" + receiver +
+                '}';
+    }
 }

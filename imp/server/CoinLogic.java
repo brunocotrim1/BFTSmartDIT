@@ -1,17 +1,13 @@
 package intol.dti.imp.server;
 
-import intol.dti.objects.BFTCoinMessage;
-import intol.dti.objects.Coin;
-import intol.dti.objects.CoinDTO;
+import intol.dti.objects.coin.BFTCoinMessage;
+import intol.dti.objects.coin.Coin;
+import intol.dti.objects.coin.CoinDTO;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.TreeMap;
-
-import static org.bouncycastle.util.Arrays.contains;
 
 public class CoinLogic implements Serializable {
     private TreeMap<Integer, Coin> coinMap;
@@ -22,6 +18,7 @@ public class CoinLogic implements Serializable {
     }
 
     public byte[] executeOrderedCoin(BFTCoinMessage message, int sender) throws IOException {
+        System.out.println("Executing Message: " + message);
         switch (message.getType()) {
             case MY_COINS:
                 return myCoins(message, sender);
@@ -59,7 +56,7 @@ public class CoinLogic implements Serializable {
 
     private byte[] mint(BFTCoinMessage message, int sender) throws IOException {
         BFTCoinMessage response = new BFTCoinMessage();
-        if (sender != 4) {
+        if (sender != 4 || message.getValue() <= 0) {
             response.setValue(-1);
             return BFTCoinMessage.toBytes(response);
         }
@@ -71,28 +68,11 @@ public class CoinLogic implements Serializable {
 
     private byte[] spend(BFTCoinMessage message, int sender) throws IOException {
         BFTCoinMessage response = new BFTCoinMessage();
-
-        float valueFromAllCoins = valueFromAllOwnerCoins(sender,message.getCoins());
-        if (valueFromAllCoins == -1) {
+        if (message.getCoins() == null || message.getCoins().length == 0 || message.getValue() <= 0) {
             response.setValue(-1);
             return BFTCoinMessage.toBytes(response);
         }
-        int receiver = message.getReceiver();
-        float value = message.getValue();
-
-        if (valueFromAllCoins < value || sender == receiver) {
-            response.setValue(-1);
-            return BFTCoinMessage.toBytes(response);
-        }
-        consumeCoinsOwner(sender,message.getCoins());
-        if(valueFromAllCoins - value == 0){
-            response.setValue(0);
-        }else {
-            Coin issuer = createCoin(sender, valueFromAllCoins - value);
-            System.out.println("COINS AFTER SPEND:" + coinMap);
-            response.setValue(issuer.getId());
-        }
-        Coin receiverCoin = createCoin(receiver, value);
+        response.setValue(executeTransaction(message.getCoins(), message.getReceiver(), sender, message.getValue()));
         return BFTCoinMessage.toBytes(response);
     }
 
@@ -125,5 +105,22 @@ public class CoinLogic implements Serializable {
         coinMap.put(coin.getId(), coin);
         return coin;
     }
-
+    public int executeTransaction(int[] coins, int receiver, int sender, float value) {
+        float valueFromAllCoins = valueFromAllOwnerCoins(sender, coins);
+        if (valueFromAllCoins == -1 || value <= 0) {
+            return -1;
+        }
+        if (valueFromAllCoins < value || sender == receiver) {
+            return -1;
+        }
+        consumeCoinsOwner(sender, coins);
+        if (valueFromAllCoins - value == 0) {
+            Coin receiverCoin = createCoin(receiver, value);
+            return 0;
+        } else {
+            Coin issuer = createCoin(sender, valueFromAllCoins - value);
+            Coin receiverCoin = createCoin(receiver, value);
+            return issuer.getId();
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package intol.dti.objects;
+package intol.dti.objects.coin;
 
 import java.util.Objects;
 

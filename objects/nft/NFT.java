@@ -1,6 +1,5 @@
-package intol.dti.objects;
+package intol.dti.objects.nft;
 
-import java.net.URI;
 import java.util.Objects;
 
 public class NFT {
@@ -57,5 +56,16 @@ public class NFT {
 
     public void setValue(float value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "NFT{" +
+                "id=" + id +
+                ", owner=" + owner +
+                ", name='" + name + '\'' +
+                ", URI='" + URI + '\'' +
+                ", value=" + value +
+                '}';
     }
 }

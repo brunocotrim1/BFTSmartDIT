@@ -3,23 +3,20 @@ package intol.dti.imp.server;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable;
-import intol.dti.objects.BFTCoinMessage;
-import intol.dti.objects.BFTNftMessage;
-import intol.dti.objects.Coin;
-import intol.dti.objects.NFT;
+import intol.dti.objects.coin.BFTCoinMessage;
+import intol.dti.objects.nft.BFTNftMessage;
 
 import java.io.*;
-import java.util.TreeMap;
 
 public class DTIServer<K> extends DefaultSingleRecoverable {
 
     private final ServiceReplica replica;
-    private CoinLogic coinLogic = new CoinLogic();
-    private NFTLogic nftLogic = new NFTLogic();
+    private CoinLogic coinLogic;
+    private NFTLogic nftLogic;
 
     public DTIServer(int id) {
         coinLogic = new CoinLogic();
-        nftLogic = new NFTLogic();
+        nftLogic = new NFTLogic(coinLogic);
         replica = new ServiceReplica(id, this, this);
     }
 
@@ -39,15 +36,20 @@ public class DTIServer<K> extends DefaultSingleRecoverable {
         try {
 
             if (coinMessage != null) {
-                return coinLogic.executeOrderedCoin(coinMessage, msgCtx.getSender());
+                byte[] response = coinLogic.executeOrderedCoin(coinMessage, msgCtx.getSender());
+                System.out.println("Result of Message: " + BFTCoinMessage.fromBytes(response));
+                return response;
 
             } else if (nftMessage != null) {
-                return nftLogic.executeOrderedNFT(nftMessage);
+                return nftLogic.executeOrderedNFT(nftMessage, msgCtx.getSender());
             }
             return null;
 
         } catch (IOException ex) {
-            //logger.error("Failed to process ordered request", ex);
+            ex.printStackTrace(); //debug instruction
+            return new byte[0];
+        } catch (Exception e) {
+            e.printStackTrace();
             return new byte[0];
         }
     }
@@ -59,15 +61,23 @@ public class DTIServer<K> extends DefaultSingleRecoverable {
         try {
 
             if (coinMessage != null) {
-                return coinLogic.executeUnorderedCoin(coinMessage, msgCtx.getSender());
+                byte[] response = coinLogic.executeUnorderedCoin(coinMessage, msgCtx.getSender());
+                System.out.println("Result of Message: " + BFTCoinMessage.fromBytes(response));
+                return response;
+
 
             } else if (nftMessage != null) {
-                return nftLogic.executeUnorderedNFT(nftMessage, msgCtx.getSender());
+               byte[] response = nftLogic.executeUnorderedNFT(nftMessage, msgCtx.getSender());
+                System.out.println("Result of Message: " + BFTNftMessage.fromBytes(response));
+                return response;
             }
             return null;
 
         } catch (IOException ex) {
-            //logger.error("Failed to process ordered request", ex);
+            ex.printStackTrace(); //debug instruction
+            return new byte[0];
+        } catch (Exception e) {
+           e.printStackTrace();
             return new byte[0];
         }
     }
@@ -78,6 +88,7 @@ public class DTIServer<K> extends DefaultSingleRecoverable {
              ObjectInput in = new ObjectInputStream(bis)) {
             coinLogic = (CoinLogic) in.readObject();
             nftLogic = (NFTLogic) in.readObject();
+            nftLogic.setCoinLogic(coinLogic);
         } catch (ClassNotFoundException | IOException ex) {
             ex.printStackTrace(); //debug instruction
         }
