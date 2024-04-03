@@ -15,4 +15,6 @@ The client has access to an abstraction that uses server proxy to communicate wi
 is sending the requests parameters and receive the response, the rest of the logic is all contained in the server side.
 In order to maintain a valid and safe state.
 
+Bruno Cotrim, FC54406, Group 12
+
 ```
