@@ -15,7 +15,8 @@ public class DTIInteractiveClient {
         System.out.println("\nCommands:\n");
         System.out.println("\tCoin Related Commands:");
         System.out.println("\t\tCOINS: get the ids and values of the coins associated with this user.");
-        System.out.println("\t\tMINT(value): Mint Coins with the specified value with permission.");
+        System.out.println("\t\tMINT(value): Mint Coins with the specified value with permission." +
+                " for this one value is requested after typing mint");
         System.out.println("\t\tSPEND(coins, receiver, value): Sends value from the coins " +
                 "to the receiver.PS: Insert this format SPEND 1,5,6 2 3");
         System.out.println("\n\t NFT Related Commands:");
@@ -85,7 +86,7 @@ public class DTIInteractiveClient {
                     }
                     System.out.println("\tNFTs: ");
                     for (NFTDto nft : nfts) {
-                        System.out.println("\t\t NFT:" + nft.getId() + " : " + nft.getName() + " : " + nft.getValue());
+                        System.out.println("\t\t NFT:" + nft.getId() + " : " + nft.getName() + " : "+ nft.getUri() + " : " + nft.getValue());
                     }
                 } else {
                     System.out.println("\tFailed to retrieve NFTs");
@@ -192,7 +193,8 @@ public class DTIInteractiveClient {
                 System.out.println("\nCommands:\n");
                 System.out.println("\tCoin Related Commands:");
                 System.out.println("\t\tCOINS: get the ids and values of the coins associated with this user.");
-                System.out.println("\t\tMINT(value): Mint Coins with the specified value with permission.");
+                System.out.println("\t\tMINT(value): Mint Coins with the specified value with permission." +
+                        " for this one value is requested after typing mint");
                 System.out.println("\t\tSPEND(coins, receiver, value): Sends value from the coins " +
                         "to the receiver.PS: Insert this format SPEND 1,5,6 2 3");
                 System.out.println("\n\t NFT Related Commands:");
