@@ -13,7 +13,9 @@ Read requests are implemented in unordered requests to improve performance but i
 implemented in ordered requests in the server side.
 The client has access to an abstraction that uses server proxy to communicate with the servers, the only thing client does
 is sending the requests parameters and receive the response, the rest of the logic is all contained in the server side.
-In order to maintain a valid and safe state.
+In order to maintain a valid and safe state. The nft and coin id generation i choosed to implement a sequential id approach
+to facilitate the testing of the problem and demonstration but a random generation could also be achieved using a random seed
+that is common among the servers.
 
 Bruno Cotrim, FC54406, Group 12
 

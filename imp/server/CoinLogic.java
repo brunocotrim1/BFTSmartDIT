@@ -85,6 +85,8 @@ public class CoinLogic implements Serializable {
             }
             if (coin.getOwner() == owner) {
                 value += coin.getValue();
+            }else {
+                return -1;
             }
         }
         return value;
